@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/dimfeld/httptreemux"
+	"github.com/dimfeld/httptreemux/v5"
 	"github.com/pkg/errors"
 )
 
