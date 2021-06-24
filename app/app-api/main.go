@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"time"
 
@@ -89,6 +90,8 @@ func run(l *log.Logger) error {
 			log.Printf("main: Debug Listener closed : %v", err)
 		}
 	}()
+
+	select {}
 
 	// TODO: httptreemux usage TBD
 	//m := httptreemux.NewContextMux()
