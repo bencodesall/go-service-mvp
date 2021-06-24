@@ -1,12 +1,12 @@
 SHELL := /bin/bash
 
 run:
-	go run app/application/main.go
+	go run app/app-api/main.go
 
 tidy:
 	go mod tidy
 	go mod vendor
 
 appbuild:
-	cd app/application && go build && cd ../../
+	cd app/app-api && go build && cd ../../
 
