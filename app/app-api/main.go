@@ -33,7 +33,7 @@ var copyright = "© YEAR SomeCompany, Inc"
 
 func main() {
 	// Precision-based semantics to pass down logging and use where needed
-	log := log.New(os.Stdout, "APP:", log.Lmsgprefix|log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
+	log := log.New(os.Stdout, "APP:", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
 	if err := run(log); err != nil {
 		log.Println("main: error: ", err)
 		os.Exit(1)
