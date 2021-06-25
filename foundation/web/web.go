@@ -28,7 +28,7 @@ type Values struct {
 // using an "onion" method
 type Handler func(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 
-// App is the entrypoint into our applicatino and what configures our context
+// App is the entrypoint into our application and what configures our context
 // object for each of our http handlers. Feel free to add any configuration
 // data/logic on this App struct. App is everything that a ContextMux is by
 // virtue of promotion.

@@ -19,5 +19,4 @@ func (c check) readiness(ctx context.Context, w http.ResponseWriter, r *http.Req
 	}
 	log.Println(r, status)
 	return json.NewEncoder(w).Encode(status)
-
 }
