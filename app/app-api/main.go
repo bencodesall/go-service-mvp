@@ -4,6 +4,7 @@ import (
 	"context"
 	"expvar"
 	"fmt"
+	"github.com/bencodesall/ardanlabs-service-2.0/app/app-api/handlers"
 	"log"
 	"net/http"
 	_ "net/http/pprof"
@@ -17,7 +18,9 @@ import (
 )
 
 /*
+TODO: Check why the prefix is not being added to the logs
 TODO: Per line "todo" list. For involved items add an issue to issue tracking first! Avoid relying on "TODO" sprinkled throughout code.
+TODO: httptreemux usage TBD
 Need to figure out timeouts for http service.
 You might want to reset your DB_HOST env var during test tear down.
 Service should start even without a DB running yet.
@@ -26,11 +29,11 @@ symbols in profiles: https://github.com/golang/go/issues/23376 / https://github.
 
 // build is the git version of the program. Set using build flags
 var build = "develop"
+var copyright = "© YEAR SomeCompany, Inc"
 
 func main() {
 	// Precision-based semantics to pass down logging and use where needed
-	// TODO: Check why the prefix is not being added
-	log := log.New(os.Stdout, "APP:", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
+	log := log.New(os.Stdout, "APP:", log.Lmsgprefix|log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
 	if err := run(log); err != nil {
 		log.Println("main: error: ", err)
 		os.Exit(1)
@@ -49,7 +52,7 @@ func run(l *log.Logger) error {
 		}
 	}
 	cfg.Version.SVN = build
-	cfg.Version.Desc = "copyright information here"
+	cfg.Version.Desc = copyright
 
 	if err := conf.Parse(os.Args[1:], "APPLICATION", &cfg); err != nil {
 		switch err {
@@ -114,7 +117,7 @@ func run(l *log.Logger) error {
 
 	api := http.Server{
 		Addr:         cfg.Web.APIHost,
-		// Handler:      handlers.API(build, shutdown, log, db, auth),
+		Handler:      handlers.API(build, shutdown, l),
 		ReadTimeout:  cfg.Web.ReadTimeout,
 		WriteTimeout: cfg.Web.WriteTimeout,
 	}
@@ -150,10 +153,6 @@ func run(l *log.Logger) error {
 			return errors.Wrap(err, "could not stop server gracefully")
 		}
 	}
-
-	// TODO: httptreemux usage TBD
-	//m := httptreemux.NewContextMux()
-	//m.Handle(http.MethodGet, "/test", nil)
 
 	return nil
 }
