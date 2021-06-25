@@ -31,6 +31,33 @@ Bill Kennedy espouses a 5 layer approach to application architecture that define
 
 ### Layer Policy (Engineering Constraint)
 
+### Middleware "Onion"
+
+#### Onion "Layers"
+
+1. Readiness
+2. Auth
+3. Panic
+4. Metrics
+5. Errors
+6. Logging
+
+**Supporting "wrap" func**
+
+This function takes a set of "midlewares" (functions) and returns them layered from right to left.
+
+```go
+func wrapMiddleware(mw []Middleware, handler Handler) Handler {
+	for i := len(mw) - 1; i >= 0; i-- {
+		h := mw[i]
+		if h != nil {
+			handler = h(handler)
+		}
+	}
+	return handler
+}
+```
+
 #### Logging
 
 Logging is not an insurance policy. Logging is a engineering decision that should be precise.
