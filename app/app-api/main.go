@@ -17,10 +17,12 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Per line list of todos. For involved items add an issue to issue tracking first!
+// Add individual todos below and a copy of it at the place in the code. This should allow
+// devs to keep a single "source" for the pending tasks, as well as a searchable matching
+// entry to take them directly to it.
 /*
-TODO: Check why the prefix is not being added to the logs
-TODO: Per line "todo" list. For involved items add an issue to issue tracking first! Avoid relying on "TODO" sprinkled throughout code.
-TODO: httptreemux usage TBD
+TODO: Check why the log prefix is not being output
 Need to figure out timeouts for http service.
 You might want to reset your DB_HOST env var during test tear down.
 Service should start even without a DB running yet.
@@ -32,6 +34,7 @@ var build = "develop"
 var copyright = "© YEAR SomeCompany, Inc"
 
 func main() {
+	// TODO: Check why the log prefix is not being output
 	// Precision-based semantics to pass down logging and use where needed
 	log := log.New(os.Stdout, "APP:", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
 	if err := run(log); err != nil {
