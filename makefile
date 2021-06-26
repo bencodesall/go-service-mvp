@@ -33,6 +33,9 @@ tidy:
 run:
 	go run app/app-api/main.go
 
+runadmin:
+	go run app/admin/main.go
+
 appbuild:
 	cd app/app-api && go build && cd ../../
 
