@@ -6,15 +6,31 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
-	"github.com/pkg/errors"
 	"os"
+
+	"github.com/pkg/errors"
 )
 
 func main() {
-	keygen()
+	//genKey()
+	genToken()
 }
 
-func keygen() error {
+func genToken() error {
+	//privatePEM, err := ioutil.ReadFile("./private.pem")
+	err := errors.New("")
+	if err != nil {
+		return errors.Wrap(err, "reading PEM private key file")
+	}
+
+	//privateKey, err := jwt.ParseRSAPrivateKeyFromPEM(privatePEM)
+	if err != nil {
+		return errors.Wrap(err, "parsing PEM into private key")
+	}
+	return nil
+}
+
+func genKey() error {
 	// Generate a new private key.
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {

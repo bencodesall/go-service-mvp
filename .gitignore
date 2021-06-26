@@ -2,4 +2,10 @@
 .idea/
 
 # Build artifact
-/ardanlabs-service-2.0
+/go-service-mvp
+
+# Keys
+**.pem
+
+## main builds
+main

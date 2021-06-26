@@ -36,6 +36,6 @@ run:
 runadmin:
 	go run app/admin/main.go
 
-appbuild:
-	cd app/app-api && go build && cd ../../
+buildapi:
+	go build app/app-api/main.go
 
