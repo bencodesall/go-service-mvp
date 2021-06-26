@@ -1,4 +1,8 @@
-# ardanlabs-service-2.0
+# go-service-mvp
+
+Status : WiP
+
+***NOTE: Currently this README is in a VERY ROUGH state. DO NOT REFERENCE IT ;)***
 
 ## Projects Setup
 
