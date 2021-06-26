@@ -36,14 +36,14 @@ var copyright = "© YEAR SomeCompany, Inc"
 func main() {
 	// TODO: Check why the log prefix is not being output
 	// Precision-based semantics to pass down logging and use where needed
-	log := log.New(os.Stdout, "APP:", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
+	log := log.New(os.Stdout, "APP-API: ", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
 	if err := run(log); err != nil {
 		log.Println("main: error: ", err)
 		os.Exit(1)
 	}
 }
 
-func run(l *log.Logger) error {
+func run(log *log.Logger) error {
 	var cfg struct {
 		conf.Version
 		Web struct {
@@ -120,7 +120,7 @@ func run(l *log.Logger) error {
 
 	api := http.Server{
 		Addr:         cfg.Web.APIHost,
-		Handler:      handlers.API(build, shutdown, l),
+		Handler:      handlers.API(build, shutdown, log),
 		ReadTimeout:  cfg.Web.ReadTimeout,
 		WriteTimeout: cfg.Web.WriteTimeout,
 	}
