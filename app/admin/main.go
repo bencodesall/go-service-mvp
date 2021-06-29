@@ -6,10 +6,18 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
 )
+
+/*
+	openssl genpkey -algorithm RSA -out private.pem -pkeyopt rsa_keygen_bits:2048
+	optnssl rsa -pubout -in private.pem -out public.pem
+ */
 
 func main() {
 	//genKey()
@@ -17,18 +25,54 @@ func main() {
 }
 
 func genToken() error {
-	//privatePEM, err := ioutil.ReadFile("./private.pem")
-	err := errors.New("")
+	privatePEM, err := ioutil.ReadFile(",/private.pem")
 	if err != nil {
 		return errors.Wrap(err, "reading PEM private key file")
 	}
 
-	//privateKey, err := jwt.ParseRSAPrivateKeyFromPEM(privatePEM)
+	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM(privatePEM)
 	if err != nil {
 		return errors.Wrap(err, "parsing PEM into private key")
 	}
+
+	// Generating a token requires defining a set of claims. In this applications
+	// case, we only care about defining the subject and the user in question and
+	// the roles they have on the database. This token will expire in a year.
+	//
+	// iss (issuer): Issuer of the JWT
+	// sub (subject): Subject of the JWT (the user)
+	// aud (audience): Recipient for which the JWT is intended
+	// exp (expiration time): Time after which the JWT expires
+	// nbf (not before time): Time before which the JWT must not be accepted for processing
+	// iat (issued at time): Time at which the JWT was issued; can be used to determine age of the JWT
+	// jti (JWT ID): Unique identifier; can be used to prevent the JWT from being replayed (allows a token to be used only once)
+	claims := struct {
+		jwt.StandardClaims
+		Authorized []string
+	}{
+		StandardClaims: jwt.StandardClaims{
+			Issuer:    "service project",
+			Subject:   "123456789",
+			ExpiresAt: time.Now().Add(8760 * time.Hour).Unix(),
+			IssuedAt:  time.Now().Unix(),
+		},
+		Authorized: []string{"ADMIN"},
+	}
+
+	method := jwt.GetSigningMethod("RS256")
+	tkn := jwt.NewWithClaims(method, claims)
+	tkn.Header["kid"] = "asdflkjsdlkfj9808098-asdfas"
+
+	str, err := tkn.SignedString(privateKey)
+	if err != nil {
+		return errors.Wrap(err, "signing token")
+	}
+
+	fmt.Printf("-----BEGIN TOKEN-----\n%s\n-----END TOKEN-----\n", str)
 	return nil
 }
+
+
 
 func genKey() error {
 	// Generate a new private key.
