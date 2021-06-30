@@ -25,7 +25,7 @@ func main() {
 }
 
 func genToken() error {
-	privatePEM, err := ioutil.ReadFile(",/private.pem")
+	privatePEM, err := ioutil.ReadFile("app/private.pem")
 	if err != nil {
 		return errors.Wrap(err, "reading PEM private key file")
 	}
@@ -48,7 +48,7 @@ func genToken() error {
 	// jti (JWT ID): Unique identifier; can be used to prevent the JWT from being replayed (allows a token to be used only once)
 	claims := struct {
 		jwt.StandardClaims
-		Authorized []string
+		Roles []string `json:"roles"`
 	}{
 		StandardClaims: jwt.StandardClaims{
 			Issuer:    "service project",
@@ -56,12 +56,12 @@ func genToken() error {
 			ExpiresAt: time.Now().Add(8760 * time.Hour).Unix(),
 			IssuedAt:  time.Now().Unix(),
 		},
-		Authorized: []string{"ADMIN"},
+		Roles: []string{"ADMIN"},
 	}
 
 	method := jwt.GetSigningMethod("RS256")
 	tkn := jwt.NewWithClaims(method, claims)
-	tkn.Header["kid"] = "asdflkjsdlkfj9808098-asdfas"
+	tkn.Header["kid"] = "54bb2165-71e1-41a6-af3e-7da4a0e1e2c1"
 
 	str, err := tkn.SignedString(privateKey)
 	if err != nil {
