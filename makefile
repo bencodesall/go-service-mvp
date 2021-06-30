@@ -21,6 +21,12 @@ export PROJECT = ardan-starter-kit
 # ==============================================================================
 
 # ==============================================================================
+# Running tests locally
+test:
+	go test -v ./... -count=1
+	staticcheck ./...
+
+# ==============================================================================
 # Modules support
 
 tidy:
@@ -33,6 +39,9 @@ tidy:
 run:
 	go run app/app-api/main.go
 
-appbuild:
-	cd app/app-api && go build && cd ../../
+runadmin:
+	go run app/admin/main.go
+
+buildapi:
+	go build app/app-api/main.go
 

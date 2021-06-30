@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/bencodesall/ardanlabs-service-2.0/business/auth"
 	"log"
 	"net/http"
 	"os"
@@ -10,14 +11,14 @@ import (
 )
 
 // API constructs an http.Handler with all application routes defined
-func API(build string, shutdown chan os.Signal, log *log.Logger) *web.App {
+func API(build string, shutdown chan os.Signal, log *log.Logger, a *auth.Auth) *web.App {
 
 	app := web.NewApp(shutdown, middleware.Logger(log), middleware.Errors(log), middleware.Metrics(), middleware.Panics(log))
 
 	check := check{
 		log: log,
 	}
-	app.Handle(http.MethodGet, "/readiness", check.readiness)
+	app.Handle(http.MethodGet, "/readiness", check.readiness, middleware.Authenticate(a), middleware.Authorize(auth.RoleUser))
 
 	return app
 }

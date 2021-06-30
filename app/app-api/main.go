@@ -2,9 +2,13 @@ package main
 
 import (
 	"context"
+	"crypto/rsa"
 	"expvar"
 	"fmt"
 	"github.com/bencodesall/ardanlabs-service-2.0/app/app-api/handlers"
+	"github.com/bencodesall/ardanlabs-service-2.0/business/auth"
+	"github.com/dgrijalva/jwt-go"
+	"io/ioutil"
 	"log"
 	"net/http"
 	_ "net/http/pprof"
@@ -22,7 +26,7 @@ import (
 // devs to keep a single "source" for the pending tasks, as well as a searchable matching
 // entry to take them directly to it.
 /*
-TODO: Check why the log prefix is not being output
+TODO: Implement CLI overrides for config struct defaults
 Need to figure out timeouts for http service.
 You might want to reset your DB_HOST env var during test tear down.
 Service should start even without a DB running yet.
@@ -34,7 +38,6 @@ var build = "develop"
 var copyright = "© YEAR SomeCompany, Inc"
 
 func main() {
-	// TODO: Check why the log prefix is not being output
 	// Precision-based semantics to pass down logging and use where needed
 	log := log.New(os.Stdout, "APP-API: ", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
 	if err := run(log); err != nil {
@@ -53,10 +56,16 @@ func run(log *log.Logger) error {
 			WriteTimeout    time.Duration `conf:"default:5s"`
 			ShutdownTimeout time.Duration `conf:"default:5s"`
 		}
+		Auth struct {
+			KeyID	string `conf:"default:54bb2165-71e1-41a6-af3e-7da4a0e1e2c1"`
+			PrivateKeyFile string `conf:"default:/app/private.pem"`
+			Algorithm string `conf:"default:RS256"`
+		}
 	}
 	cfg.Version.SVN = build
 	cfg.Version.Desc = copyright
 
+	// TODO: Implement CLI overrides for config struct defaults
 	if err := conf.Parse(os.Args[1:], "APPLICATION", &cfg); err != nil {
 		switch err {
 		case conf.ErrHelpWanted:
@@ -92,6 +101,34 @@ func run(log *log.Logger) error {
 	log.Printf("main : Config :\n%v\n", out)
 
 	// =========================================================================
+	// Initialize authentication support
+
+	log.Println("main : Started : Initializing authentication support")
+
+	privatePEM, err := ioutil.ReadFile(cfg.Auth.PrivateKeyFile)
+	if err != nil {
+		return errors.Wrap(err, "reading auth private key")
+	}
+
+	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM(privatePEM)
+	if err != nil {
+		return errors.Wrap(err, "parsing auth private key")
+	}
+
+	lookup := func(kid string) (*rsa.PublicKey, error) {
+		switch kid {
+		case cfg.Auth.KeyID:
+			return &privateKey.PublicKey, nil
+		}
+		return nil, fmt.Errorf("no public key found for the specified kid: %s", kid)
+	}
+
+	auth, err := auth.New(cfg.Auth.Algorithm, lookup, auth.Keys{cfg.Auth.KeyID: privateKey})
+	if err != nil {
+		return errors.Wrap(err, "constructing auth")
+	}
+
+	// =========================================================================
 	// Start Debug Service
 	//
 	// /debug/pprof - Added to the default mux by importing the net/http/pprof package.
@@ -120,7 +157,7 @@ func run(log *log.Logger) error {
 
 	api := http.Server{
 		Addr:         cfg.Web.APIHost,
-		Handler:      handlers.API(build, shutdown, log),
+		Handler:      handlers.API(build, shutdown, log, auth),
 		ReadTimeout:  cfg.Web.ReadTimeout,
 		WriteTimeout: cfg.Web.WriteTimeout,
 	}
