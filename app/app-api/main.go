@@ -58,7 +58,7 @@ func run(log *log.Logger) error {
 		}
 		Auth struct {
 			KeyID	string `conf:"default:54bb2165-71e1-41a6-af3e-7da4a0e1e2c1"`
-			PrivateKeyFile string `conf:"default:/app/private.pem"`
+			PrivateKeyFile string `conf:"default:/service/private.pem"`
 			Algorithm string `conf:"default:RS256"`
 		}
 	}
@@ -66,17 +66,17 @@ func run(log *log.Logger) error {
 	cfg.Version.Desc = copyright
 
 	// TODO: Implement CLI overrides for config struct defaults
-	if err := conf.Parse(os.Args[1:], "APPLICATION", &cfg); err != nil {
+	if err := conf.Parse(os.Args[1:], "APP", &cfg); err != nil {
 		switch err {
 		case conf.ErrHelpWanted:
-			usage, err := conf.Usage("APPLICATION", &cfg)
+			usage, err := conf.Usage("APP", &cfg)
 			if err != nil {
 				return errors.Wrap(err, "generating config usage")
 			}
 			fmt.Println(usage)
 			return nil
 		case conf.ErrVersionWanted:
-			version, err := conf.VersionString("APPLICATION", &cfg)
+			version, err := conf.VersionString("APP", &cfg)
 			if err != nil {
 				return errors.Wrap(err, "generating config version")
 			}

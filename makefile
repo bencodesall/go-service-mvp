@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-export PROJECT = ardan-starter-kit
+export PROJECT = bencodesall-starter-kit
 
 # ==============================================================================
 # Testing running system
@@ -19,6 +19,54 @@ export PROJECT = ardan-starter-kit
 # expvarmon -ports=":4000" -vars="build,requests,goroutines,errors,mem:memstats.Alloc"
 
 # ==============================================================================
+# Building containers
+
+# $(shell git rev-parse --short HEAD)
+VERSION := 1.0
+VREF := $(shell git rev-parse --short HEAD)
+
+all: app-api
+
+app-api:
+	docker build \
+		-f zarf/docker/dockerfile.app-api \
+		-t app-api-amd64:$(VERSION) \
+		--build-arg VCS_REF=$(VREF) \
+		--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+		.
+
+# ==============================================================================
+# Running from within k8s/dev
+kind-up:
+	kind create cluster --image kindest/node:v1.21.1 --name bencodesall-starter-cluster --config zarf/k8s/dev/kind-config.yaml
+
+kind-down:
+	kind delete cluster --name bencodesall-starter-cluster
+
+kind-load:
+	kind load docker-image app-api-amd64:1.0 --name bencodesall-starter-cluster
+	#kind load docker-image metrics-amd64:1.0 --name bencodesall-starter-cluster
+
+kind-services:
+	kustomize build zarf/k8s/dev | kubectl apply -f -
+
+kind-app-api: app-api
+	kind load docker-image app-api-amd64:1.0 --name bencodesall-starter-cluster
+	kubectl delete pods -lapp=app-api
+
+#kind-metrics: metrics
+#	kind load docker-image metrics-amd64:1.0 --name ardan-starter-cluster
+#	kubectl delete pods -lapp=sales-api
+
+kind-logs:
+	kubectl logs -lapp=app-api --all-containers=true -f
+
+kind-status:
+	kubectl get nodes
+	kubectl get pods --watch
+
+kind-status-full:
+	kubectl describe pod -lapp=app-api
 
 # ==============================================================================
 # Running tests locally

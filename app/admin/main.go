@@ -25,7 +25,7 @@ func main() {
 }
 
 func genToken() error {
-	privatePEM, err := ioutil.ReadFile("app/private.pem")
+	privatePEM, err := ioutil.ReadFile("service/private.pem")
 	if err != nil {
 		return errors.Wrap(err, "reading PEM private key file")
 	}
