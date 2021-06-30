@@ -19,6 +19,7 @@ func API(build string, shutdown chan os.Signal, log *log.Logger, a *auth.Auth) *
 		log: log,
 	}
 	app.Handle(http.MethodGet, "/readiness", check.readiness, middleware.Authenticate(a), middleware.Authorize(auth.RoleUser))
+	app.Handle(http.MethodGet, "/liveness", check.readiness, middleware.Authenticate(a), middleware.Authorize(auth.RoleUser))
 
 	return app
 }
