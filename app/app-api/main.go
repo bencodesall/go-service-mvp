@@ -26,7 +26,7 @@ import (
 // devs to keep a single "source" for the pending tasks, as well as a searchable matching
 // entry to take them directly to it.
 /*
-TODO: Check why the log prefix is not being output
+TODO: Implement CLI overrides for config struct defaults
 Need to figure out timeouts for http service.
 You might want to reset your DB_HOST env var during test tear down.
 Service should start even without a DB running yet.
@@ -38,7 +38,6 @@ var build = "develop"
 var copyright = "© YEAR SomeCompany, Inc"
 
 func main() {
-	// TODO: Check why the log prefix is not being output
 	// Precision-based semantics to pass down logging and use where needed
 	log := log.New(os.Stdout, "APP-API: ", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
 	if err := run(log); err != nil {
@@ -66,6 +65,7 @@ func run(log *log.Logger) error {
 	cfg.Version.SVN = build
 	cfg.Version.Desc = copyright
 
+	// TODO: Implement CLI overrides for config struct defaults
 	if err := conf.Parse(os.Args[1:], "APPLICATION", &cfg); err != nil {
 		switch err {
 		case conf.ErrHelpWanted:
