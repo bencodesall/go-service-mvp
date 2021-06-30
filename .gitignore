@@ -9,3 +9,6 @@
 
 ## main builds
 main
+
+## Dev ENV source script
+env.sh
