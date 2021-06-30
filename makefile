@@ -19,6 +19,21 @@ export PROJECT = ardan-starter-kit
 # expvarmon -ports=":4000" -vars="build,requests,goroutines,errors,mem:memstats.Alloc"
 
 # ==============================================================================
+# Building containers
+
+# $(shell git rev-parse --short HEAD)
+VERSION := 1.0
+VREF := $(shell git rev-parse --short HEAD)
+
+all: app-api
+
+app-api:
+	docker build \
+		-f zarf/docker/dockerfile.app-api \
+		-t app-api-amd64:$(VERSION) \
+		--build-arg VCS_REF=$(VREF) \
+		--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+		.
 
 # ==============================================================================
 # Running tests locally
