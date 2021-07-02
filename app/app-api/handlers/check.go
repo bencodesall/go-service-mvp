@@ -2,19 +2,20 @@ package handlers
 
 import (
 	"context"
-	"log"
+	"github.com/bencodesall/ardanlabs-service-2.0/foundation/database"
+	"github.com/jmoiron/sqlx"
 	"net/http"
 	"os"
 
 	"github.com/bencodesall/ardanlabs-service-2.0/foundation/web"
 )
 
-type check struct {
-	log *log.Logger
+type checkGroup struct {
 	build string
+	db *sqlx.DB
 }
 
-func (c check) readiness(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+func (cg checkGroup) readiness(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 
 	// RANDOM FAILURE TESTING
 	//if n := rand.Intn(100); n%100 == 0 {
@@ -24,17 +25,23 @@ func (c check) readiness(ctx context.Context, w http.ResponseWriter, r *http.Req
 	//	// panic("forcing panic")
 	//	// return web.NewShutdownError("forcing shutdown")
 	//}
-	status := struct {
-		Status string
-	}{
-		Status: "Ok",
+	status := "ok"
+	statusCode := http.StatusOK
+	if err := database.StatusCheck(ctx, cg.db); err != nil {
+		status = "db not ready"
+		statusCode = http.StatusInternalServerError
 	}
 
-	//return json.NewEncoder(w).Encode(status)
-	return web.Respond(ctx, w, status, http.StatusOK)
+	health := struct {
+		Status string `json:"status"`
+	}{
+		Status: status,
+	}
+
+	return web.Respond(ctx, w, health, statusCode)
 }
 
-func (c check) liveness(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+func (cg checkGroup) liveness(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	host, err := os.Hostname()
 	if err != nil {
 		host = "unavailable"
@@ -50,7 +57,7 @@ func (c check) liveness(ctx context.Context, w http.ResponseWriter, r *http.Requ
 		Namespace string `json:"namespace,omitempty"`
 	}{
 		Status:    "up",
-		Build:     c.build,
+		Build:     cg.build,
 		Host:      host,
 		Pod:       os.Getenv("KUBERNETES_PODNAME"),
 		PodIP:     os.Getenv("KUBERNETES_NAMESPACE_POD_IP"),
