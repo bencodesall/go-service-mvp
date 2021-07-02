@@ -6,7 +6,10 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
+	"github.com/bencodesall/ardanlabs-service-2.0/business/data/schema"
+	"github.com/bencodesall/ardanlabs-service-2.0/foundation/database"
 	"io/ioutil"
+	"log"
 	"os"
 	"time"
 
@@ -21,7 +24,37 @@ import (
 
 func main() {
 	//genKey()
-	genToken()
+	//genToken()
+	migrate()
+}
+
+func migrate() {
+
+	cfg := database.Config{
+		User:       "postgres",
+		Password:   "postgres",
+		Host:       "0.0.0.0",
+		Name:       "postgres",
+		DisableTLS: true,
+	}
+
+	db, err := database.Open(cfg)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer db.Close()
+
+	if err := schema.Migrate(db); err != nil {
+		log.Fatalln(err)
+	}
+
+	fmt.Println("migrations complete")
+
+	if err := schema.Seed(db); err != nil {
+		log.Fatalln(err)
+	}
+
+	fmt.Println("seed data complete")
 }
 
 func genToken() error {
