@@ -68,6 +68,11 @@ kind-status:
 kind-status-full:
 	kubectl describe pod -lapp=app-api
 
+kind-info:
+	kubectl cluster-info --context kind-bencodesall-starter-cluster
+
+kind-info-full:
+	kubectl cluster-info dump
 # ==============================================================================
 # Running tests locally
 test:
