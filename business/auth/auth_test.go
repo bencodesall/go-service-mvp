@@ -5,7 +5,7 @@ import (
 	"crypto/rsa"
 	"fmt"
 	"github.com/bencodesall/ardanlabs-service-2.0/business/auth"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 	"testing"
 	"time"
 )
