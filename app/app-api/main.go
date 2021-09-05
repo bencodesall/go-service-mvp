@@ -8,7 +8,7 @@ import (
 	"github.com/bencodesall/ardanlabs-service-2.0/app/app-api/handlers"
 	"github.com/bencodesall/ardanlabs-service-2.0/business/auth"
 	"github.com/bencodesall/ardanlabs-service-2.0/foundation/database"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 	"io/ioutil"
 	"log"
 	"net/http"
